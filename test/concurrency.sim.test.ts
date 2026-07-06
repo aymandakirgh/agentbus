@@ -118,7 +118,7 @@ describe('concurrency: multi-process simulation', () => {
 
       // Spawn K real OS processes; each talks to nothing but the shared folder.
       await Promise.all(
-        Array.from({ length: K }, (_, i) => spawnWorker(dir, `agent-${i}`, 3)),
+        Array.from({ length: K }, (_, i) => spawnWorker(dir, `agent-${i}`, 100)),
       );
 
       const msgs = await bus.getMessages();

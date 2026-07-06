@@ -29,8 +29,13 @@ async function run(dir: string, agent: string): Promise<void> {
   const retryMs = Number.parseInt(process.env.AGENT_BUS_RETRY_MS ?? '25', 10) || 25;
   const timeoutMs = Number.parseInt(process.env.AGENT_BUS_LOCK_TIMEOUT_MS ?? '60000', 10) || 60000;
 
+  const chaosMs = Number.parseInt(process.env.AGENT_BUS_CHAOS ?? '0', 10) || 0;
   const rand = mulberry32(agentSeed(seed, agent));
   const jitter = (n: number) => Math.floor(rand() * n);
+
+  // Stagger worker startup so all processes have a chance to begin before
+  // the first one claims everything (especially needed on fast CI runners).
+  if (chaosMs > 0) await sleep(jitter(chaosMs));
 
   const bus = new FileBus({
     dir,
